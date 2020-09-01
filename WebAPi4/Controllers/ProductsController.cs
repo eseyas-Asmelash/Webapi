@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using webapi3.Models;
+using WebAPi4.Models;
 
-namespace webapi3.Controllers
+namespace WebAPi4.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -43,36 +43,42 @@ namespace webapi3.Controllers
                 Price = 14000
             },
         };
+
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public ActionResult<IEnumerable<Product>> Get()
         {
             return products;
         }
+
         [HttpGet("{id}")]
-        public Product Get(int id)
+        public ActionResult<Product> Get(int id)
         {
             var product = products.Find(p => p.Id == id);
+            if (product == null)
+                return NotFound();
             return product;
         }
         [HttpPost]
-        public void Post([FromBody] Product product)
+        public ActionResult Post([FromBody] Product product)
         {
+            if(products.Exists(p => p.Id == product.Id))
+            {
+                return Conflict();
+            }
             products.Add(product);
+            return CreatedAtAction(nameof(Get), new { Id = product.Id }, products);
         }
-
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPut]
+        public ActionResult<IEnumerable<Product>> Put(int id, [FromBody] Product product)
         {
-            var product = products.Where(p => p.Id == id);
-            products = products.Except(product).ToList();
-        }
-
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Product product)
-        {
+            if(id != product.Id)
+            {
+                return BadRequest();
+            }
             var existingProduct = products.Where(p => p.Id == id);
             products = products.Except(existingProduct).ToList();
             products.Add(product);
+            return products;
         }
     }
 }
