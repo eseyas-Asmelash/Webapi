@@ -18,19 +18,17 @@ namespace WebAPi4
         {
             Configuration = configuration;
         }
-
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigurationServices(IServiceCollection services)
         {
             services.AddControllers();
         }
-
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRouting();
-            app.UseAuthorization();
-            app.UseEndpoints(endPoints =>
+            app.UseAuthentication();
+            app.UseEndpoints(endpoints =>
             {
-                endPoints.MapControllers();
+                endpoints.MapControllers();
             });
         }
     }
